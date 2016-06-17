@@ -1,30 +1,46 @@
-﻿using System;
+﻿using KMS.TwitterClient.Helper;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 namespace KMS.TwitterClient.Controllers
 {
+
+    /// <summary>
+    /// Get user tweet when running
+    /// </summary>
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Get user tweet when running
+        /// </summary>
+        /// <returns>User and tweet Model</returns>
         public ActionResult Index()
         {
-            return View();
+            TwitterAPI helper = new TwitterAPI();
+            var userTweet = helper.GetTweet();
+            return this.View(userTweet);
         }
 
-        public ActionResult About()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult PostNewTweet(string status)
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            if (string.IsNullOrEmpty(status))
+            {
+                throw new ArgumentNullException("Content of tweet is empty");
+            }
+            else
+            {
+                TwitterAPI helper = new TwitterAPI();
+                helper.UpdateUserTweet(status);
+            }
+            return RedirectToAction("Index");
         }
     }
 }
