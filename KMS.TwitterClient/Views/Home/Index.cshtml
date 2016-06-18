@@ -1,46 +1,46 @@
 ﻿@model IEnumerable<KMS.TwitterClient.Models.TwitterModel>
 @{
-ViewBag.Title = "Home Page";
+    ViewBag.Title = "Home Page";
 }
 <div class="row" style="margin-top: 10%">
-	<div class="col-md-8">
-		<div class="panel panel-primary"> 
-			<div class="panel-heading"> 
-				<h3 class="panel-title">List of tweet</h3> 
-			</div> 
-			<div class="panel-body">
-				<div>
-					<div id="getTweet">
-						<button type="submit" class="btn btn-primary btn-block">Refresh</button>
-					</div>
-					<hr>
-					<br />
+    <div class="col-md-8">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">List of tweet</h3>
+            </div>
+            <div class="panel-body">
+                <div>
+                    <div id="getTweet">
+                        <button type="submit" class="btn btn-primary btn-block">Refresh</button>
+                    </div>
+                    <hr>
+                    <br />
 
-					@foreach(var tweet in Model)
-					{
-						<div class="alert alert-info" role="alert"> 
-							<strong>@tweet.User.Name Post at @tweet.CreatedAt </strong><br />
-								@tweet.Text
-						</div>
-					}
-			</div> 
-
-		</div>
-	</div>
-</div>
-<div class="col-md-4">
-	<div class="panel panel-primary"> 
-		<div class="panel-heading"> 
-			<h3 class="panel-title">Post Tweet</h3> 
-		</div> 
-		<div class="panel-body">
-			<div>
-                @using (Html.BeginForm("PostNewTweet", "Home")) { 
-				<textarea class="form-control" style="margin-bottom: 2%" name="status" id="status"></textarea>
-				<button class="btn btn-primary" id="postTweet">POST</button>
-                }
-			</div>
-		</div>
-	</div>
-</div>
+                    @foreach (var tweet in Model)
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <strong>@tweet.User.Name Post at @tweet.CreatedAt </strong><br />
+                            @tweet.Text
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Post Tweet</h3>
+            </div>
+            <div class="panel-body">
+                <div>
+                    @using (Html.BeginForm("PostNewTweet", "Home"))
+                    {
+                        <textarea class="form-control" style="margin-bottom: 2%" name="status" id="status"></textarea>
+                        <button class="btn btn-primary" id="postTweet">POST</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,17 +1,9 @@
 ﻿using KMS.TwitterClient.Helper;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace KMS.TwitterClient.Controllers
 {
-
-    /// <summary>
-    /// Get user tweet when running
-    /// </summary>
     public class HomeController : Controller
     {
         /// <summary>
@@ -26,7 +18,7 @@ namespace KMS.TwitterClient.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Post New Tweet
         /// </summary>
         /// <returns></returns>
         public ActionResult PostNewTweet(string status)
@@ -42,5 +34,6 @@ namespace KMS.TwitterClient.Controllers
             }
             return RedirectToAction("Index");
         }
+
     }
 }

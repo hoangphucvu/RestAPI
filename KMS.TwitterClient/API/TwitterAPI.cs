@@ -4,13 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
-using System.Web.Script.Serialization;
-
 
 namespace KMS.TwitterClient.Helper
 {
@@ -20,45 +16,15 @@ namespace KMS.TwitterClient.Helper
     /// </summary>
     public class TwitterAPI
     {
-        /// <summary>
-        /// User consumerkey
-        /// </summary>
         private static string consumerKey = ConfigurationManager.AppSettings["ConsumerKey"].ToString();
-
-        /// <summary>
-        /// User consumer secret key
-        /// </summary>
         private static string consumerSecret = ConfigurationManager.AppSettings["ConsumerSecret"].ToString();
-
-        /// <summary>
-        /// Access token provide permission for specific user
-        /// </summary>
         private static string accessToken = ConfigurationManager.AppSettings["AccessToken"].ToString();
-
-        /// <summary>
-        /// Access token secret provide permission for specific user
-        /// </summary>
         private static string accessTokenSecret = ConfigurationManager.AppSettings["AccessTokenSecret"].ToString();
-
-        /// <summary>
-        /// Encrypted method
-        /// </summary>
         private static string oauthSignatureMethod = ConfigurationManager.AppSettings["OauthSignatureMethod"].ToString();
-
-        /// <summary>
-        /// Version authorize that API is using
-        /// </summary>
         private static string oauthVersion = ConfigurationManager.AppSettings["OauthVersion"].ToString();
-
-        /// <summary>
-        /// API url to make get request for user timeline
-        /// </summary>
         private static string userTimeline = ConfigurationManager.AppSettings["Twitter.UserTimeline"].ToString();
-
-        /// <summary>
-        /// Url for user to update tweet
-        /// </summary>
         private static string newStatusUrl = ConfigurationManager.AppSettings["Twitter.UpdateTweet"].ToString();
+        private static string oAuthUrl = ConfigurationManager.AppSettings["Twitter.OAuthUrl"].ToString();
 
         /// <summary>
         /// This variable is use to make sure that one request is not calling twice
@@ -72,7 +38,7 @@ namespace KMS.TwitterClient.Helper
         /// <param name="url">API url to create signature string</param>
         /// <param name="oauthTimeStamp">oauthTimeStamp to currently time</param>
         /// <returns>Signature string</returns>
-        public string CreateSignature(string url, string oauthTimeStamp , string method, string status = null)
+        public string CreateSignature(string url, string oauthTimeStamp, string method, string status = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -91,31 +57,39 @@ namespace KMS.TwitterClient.Helper
 
             try
             {
-                //// append all the key value 
+                //// append all the key value
                 var stringBuilder = new StringBuilder();
+                var dictionary = new SortedDictionary<string, string>();
                 if (method == "GET")
                 {
                     stringBuilder.Append("GET&");
                     stringBuilder.Append(Uri.EscapeDataString(url));
                     stringBuilder.Append("&");
+                    dictionary = new SortedDictionary<string, string>
+                    {
+                       { "oauth_version" , oauthVersion },
+                       { "oauth_consumer_key", consumerKey },
+                       { "oauth_nonce" , oauthNonce },
+                       { "oauth_signature_method" , oauthSignatureMethod },
+                       { "oauth_timestamp" , oauthTimeStamp },
+                       { "oauth_token" , accessToken },
+                    };
                 }
 
                 if (method == "POST")
                 {
-                    stringBuilder.Append("status=");
-                    stringBuilder.Append(Uri.EscapeDataString(status));
+                    stringBuilder.AppendFormat("POST&{0}&", Uri.EscapeDataString(url));
+                    dictionary = new SortedDictionary<string, string>
+                    {
+                       { "oauth_version" , oauthVersion },
+                       { "oauth_consumer_key", consumerKey },
+                       { "oauth_nonce" , oauthNonce },
+                       { "oauth_signature_method" , oauthSignatureMethod },
+                       { "oauth_timestamp" , oauthTimeStamp },
+                       { "oauth_token" , accessToken },
+                       { "status" , status }
+                    };
                 }
-
-                ////sorted the key value 
-                var dictionary = new SortedDictionary<string, string>
-                {
-                   { "oauth_version" , oauthVersion },
-                   { "oauth_consumer_key", consumerKey },
-                   { "oauth_nonce" , oauthNonce },
-                   { "oauth_signature_method" , oauthSignatureMethod },
-                   { "oauth_timestamp" , oauthTimeStamp },
-                   { "oauth_token" , accessToken }
-                };
 
                 foreach (var keyValuePair in dictionary)
                 {
@@ -124,14 +98,14 @@ namespace KMS.TwitterClient.Helper
 
                 string signatureBaseString = stringBuilder.ToString().Substring(0, stringBuilder.Length - 3);
 
-                ////generate signature key 
+                ////generate signature key
                 string signatureKey =
                 Uri.EscapeDataString(consumerSecret) + "&" +
                 Uri.EscapeDataString(accessTokenSecret);
 
                 var hmacsha1 = new HMACSHA1(new ASCIIEncoding().GetBytes(signatureKey));
 
-                    ////hash the values
+                ////hash the values
                 string signatureString = Convert.ToBase64String(
                     hmacsha1.ComputeHash(
                         new ASCIIEncoding().GetBytes(signatureBaseString)));
@@ -176,14 +150,14 @@ namespace KMS.TwitterClient.Helper
 
         /// <summary>
         /// Get client tweet on timeline using get request
-        /// Convert from JSON to model 
+        /// Convert from JSON to model
         /// </summary>
         /// <returns>Return JSON data convert to object model</returns>
         public IList<TwitterModel> GetTweet()
         {
             try
             {
-                var authorizeHeader= this.GetAuthorizeHeader("GET");
+                var authorizeHeader = GetAuthorizeHeader("GET", userTimeline, null);
                 //// Get user timeline
                 WebRequest timeLineRequest = WebRequest.Create(userTimeline);
                 timeLineRequest.Headers.Add("Authorization", authorizeHeader);
@@ -203,27 +177,22 @@ namespace KMS.TwitterClient.Helper
                 }
 
                 return clientModel;
-
             }
             catch (Exception)
             {
                 throw;
             }
-
-
         }
 
-
-        private string GetAuthorizeHeader(string method, string status = null )
+        private string GetAuthorizeHeader(string method, string url, string status = null)
         {
             TimeSpan timeSpan = DateTime.UtcNow -
             new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             string oauthTimeStamp = Convert.ToInt64(timeSpan.TotalSeconds).ToString();
-            var signature = this.CreateSignature(userTimeline, oauthTimeStamp , method ,status);
-            var authorizeHeader = this.CreateAuthorizationHeader(signature, oauthTimeStamp);
+            var signature = CreateSignature(url, oauthTimeStamp, method, status);
+            var authorizeHeader = CreateAuthorizationHeader(signature, oauthTimeStamp);
             return authorizeHeader;
         }
-
 
         /// <summary>
         /// Post new tweet to user timeline using Post request
@@ -239,7 +208,7 @@ namespace KMS.TwitterClient.Helper
 
             try
             {
-                var authorizeHeader = this.GetAuthorizeHeader("POST", status);
+                var authorizeHeader = GetAuthorizeHeader("POST", newStatusUrl, status);
                 var postBody = "status=" + Uri.EscapeDataString(status);
                 HttpWebRequest requestPostStatus = (HttpWebRequest)WebRequest.Create(newStatusUrl);
                 requestPostStatus.Headers.Add("Authorization", authorizeHeader);
@@ -249,9 +218,9 @@ namespace KMS.TwitterClient.Helper
                 {
                     byte[] content = ASCIIEncoding.ASCII.GetBytes(postBody);
                     stream.Write(content, 0, content.Length);
-                    WebResponse response = requestPostStatus.GetResponse();
-                    return response;
                 }
+                WebResponse authResponse = requestPostStatus.GetResponse();
+                return authResponse;
             }
             catch (Exception)
             {
