@@ -18,9 +18,9 @@ namespace KMS.TwitterClient.Controllers
         }
 
         /// <summary>
-        /// Post New Tweet
+        /// Post new Tweet to user timeline
         /// </summary>
-        /// <returns></returns>
+        /// <returns>To index action</returns>
         public ActionResult PostNewTweet(string status)
         {
             if (string.IsNullOrEmpty(status))

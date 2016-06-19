@@ -10,7 +10,7 @@ namespace KMS.TwitterClient.Models
     public class TwitterModel
     {
         public string ID { get; set; }
-        public string CreatedAt { get; set; }
+        public string Created_At { get; set; }
         /// <summary>
         /// Tweet Content
         /// </summary>
