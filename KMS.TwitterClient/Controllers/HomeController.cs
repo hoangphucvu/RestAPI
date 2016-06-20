@@ -1,39 +1,59 @@
 ﻿using KMS.TwitterClient.Helper;
+using log4net;
 using System;
+using System.Net;
+using System.Web;
 using System.Web.Mvc;
 
 namespace KMS.TwitterClient.Controllers
 {
     public class HomeController : Controller
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(HomeController).Name);
+        private object userTweet;
+
         /// <summary>
         /// Get user tweet when running
         /// </summary>
-        /// <returns>User and tweet Model</returns>
+        /// <returns>User and twitter Model</returns>
         public ActionResult Index()
         {
-            TwitterAPI helper = new TwitterAPI();
-            var userTweet = helper.GetTweet();
-            return this.View(userTweet);
+            try
+            {
+                TwitterAPI helper = new TwitterAPI();
+                userTweet = helper.GetTweet();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error: " + ex);
+                Log.Error(Environment.NewLine);
+                return View("~/Views/Shared/Error.cshtml");
+            }
+            return View(userTweet);
         }
 
-        /// <summary>
-        /// Post new Tweet to user timeline
-        /// </summary>
-        /// <returns>To index action</returns>
         public ActionResult PostNewTweet(string status)
         {
             if (string.IsNullOrEmpty(status))
             {
-                throw new ArgumentNullException("Content of tweet is empty");
+                Log.Error("Status of tweet is empty");
+                return View("~/Views/Shared/Error.cshtml");
             }
             else
             {
-                TwitterAPI helper = new TwitterAPI();
-                helper.UpdateUserTweet(status);
+                try
+                {
+                    TwitterAPI helper = new TwitterAPI();
+                    helper.UpdateUserTweet(status);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error: " + ex);
+                    Log.Error(Environment.NewLine);
+                    return View("~/Views/Shared/Error.cshtml");
+                }
             }
             return RedirectToAction("Index");
         }
-
     }
 }

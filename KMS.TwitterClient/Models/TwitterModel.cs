@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web;
+﻿using Newtonsoft.Json;
+using System.Web.Mvc;
 
 namespace KMS.TwitterClient.Models
-{ 
+{
     /// <summary>
     /// Store Client properties
     /// </summary>
     public class TwitterModel
     {
-        public string ID { get; set; }
-        public string Created_At { get; set; }
-        /// <summary>
-        /// Tweet Content
-        /// </summary>
-        public string Text { get; set; }
+        [JsonProperty(PropertyName = "created_at")]
+        public string CreatedAt { get; set; }
+
+        [JsonProperty(PropertyName = "text")]
+        public string Status { get; set; }
+
         public UserModel User { get; set; }
     }
 }

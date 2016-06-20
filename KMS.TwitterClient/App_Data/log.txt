@@ -1,0 +1,6 @@
+ERROR2016-06-20 07:48:04 – Error: System.Net.WebException: The remote server returned an error: (403) Forbidden.
+   at System.Net.HttpWebRequest.GetResponse()
+   at KMS.TwitterClient.Helper.TwitterAPI.UpdateUserTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\API\TwitterAPI.cs:line 202
+   at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 47
+ERROR2016-06-20 07:48:04 – 
+

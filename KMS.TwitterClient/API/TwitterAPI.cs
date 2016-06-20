@@ -24,14 +24,14 @@ namespace KMS.TwitterClient.Helper
         private static string oauthVersion = ConfigurationManager.AppSettings["OauthVersion"].ToString();
         private static string userTimeline = ConfigurationManager.AppSettings["Twitter.UserTimeline"].ToString();
         private static string newStatusUrl = ConfigurationManager.AppSettings["Twitter.UpdateTweet"].ToString();
-        /// <summary>
-        /// This variable is use to make sure that one request is not calling twice
-        /// </summary>
-        private string oauthNonce = Convert.ToBase64String(new ASCIIEncoding()
-            .GetBytes(DateTime.Now.Ticks.ToString()));
 
         /// <summary>
-        /// Create Signature for authorization
+        /// This variable is use to make sure request is unique
+        /// </summary>
+        private string oauthNonce = Convert.ToBase64String(new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
+
+        /// <summary>
+        /// Create a encrypted string for authorization with server
         /// </summary>
         /// <param name="url">API url to create signature string</param>
         /// <param name="oauthTimeStamp">oauthTimeStamp to currently time</param>
@@ -53,55 +53,47 @@ namespace KMS.TwitterClient.Helper
                 throw new ArgumentNullException("Method must not be null or empty");
             }
 
-            try
-            {
-                //// append all the key value
-                var headerAuthorizeString = new StringBuilder();
-                headerAuthorizeString.AppendFormat("{0}&{1}&", method, Uri.EscapeDataString(url));
-                var dictionary = new SortedDictionary<string, string>()
+            //append all the key value
+            var headerAuthorizeString = new StringBuilder();
+            headerAuthorizeString.AppendFormat("{0}&{1}&", method, Uri.EscapeDataString(url));
+            var dictionary = new SortedDictionary<string, string>()
                 {
                     { "oauth_version" , oauthVersion },
-                       { "oauth_consumer_key", consumerKey },
-                       { "oauth_nonce" , oauthNonce },
-                       { "oauth_signature_method" , oauthSignatureMethod },
-                       { "oauth_timestamp" , oauthTimeStamp },
-                       { "oauth_token" , accessToken },
+                    { "oauth_consumer_key", consumerKey },
+                    { "oauth_nonce" , oauthNonce },
+                    { "oauth_signature_method" , oauthSignatureMethod },
+                    { "oauth_timestamp" , oauthTimeStamp },
+                    { "oauth_token" , accessToken },
                 };
 
-                if (method == "POST")
-                {
-                    dictionary["status"] = status;
-                }
-
-                foreach (var keyValuePair in dictionary)
-                {
-                    headerAuthorizeString.Append(Uri.EscapeDataString(string.Format("{0}={1}&", keyValuePair.Key, keyValuePair.Value)));
-                }
-
-                string signatureBaseString = headerAuthorizeString.ToString().Substring(0, headerAuthorizeString.Length - 3);
-
-                ////generate signature key
-                string signatureKey =
-                Uri.EscapeDataString(consumerSecret) + "&" +
-                Uri.EscapeDataString(accessTokenSecret);
-
-                var hmacsha1 = new HMACSHA1(new ASCIIEncoding().GetBytes(signatureKey));
-
-                ////hash the values
-                string signatureString = Convert.ToBase64String(
-                    hmacsha1.ComputeHash(
-                        new ASCIIEncoding().GetBytes(signatureBaseString)));
-
-                return signatureString;
-            }
-            catch (Exception)
+            //if method is post just need to add status params to the end of dictionary
+            if (method == "POST")
             {
-                throw;
+                dictionary["status"] = Uri.EscapeDataString(status);
             }
+
+            foreach (var keyValuePair in dictionary)
+            {
+                headerAuthorizeString.Append(Uri.EscapeDataString(string.Format("{0}={1}&", keyValuePair.Key, keyValuePair.Value)));
+            }
+
+            //remove & char
+            string signatureBaseString = headerAuthorizeString.ToString().Substring(0, headerAuthorizeString.Length - 3);
+
+            //encrypt data
+            string signatureKey = String.Format("{0}&{1}", Uri.EscapeDataString(consumerSecret), Uri.EscapeDataString(accessTokenSecret));
+
+            var hmacsha1 = new HMACSHA1(new ASCIIEncoding().GetBytes(signatureKey));
+
+            //generate an encrypted oAuth signature which Twitter will use to validate the request
+            string signatureString = Convert.ToBase64String(hmacsha1.ComputeHash(
+                new ASCIIEncoding().GetBytes(signatureBaseString)));
+
+            return signatureString;
         }
 
         /// <summary>
-        /// Create authorize header then we can get list of user tweet
+        /// Create authorize header cotent all require params
         /// </summary>
         /// <param name="signature">Signature String </param>
         /// <param name="timeStamp">The current time</param>
@@ -110,14 +102,15 @@ namespace KMS.TwitterClient.Helper
         {
             if (string.IsNullOrEmpty(signature))
             {
-                throw new Exception("Singature is empty");
+                throw new ArgumentNullException("Singature is not allow to empty");
             }
 
             if (string.IsNullOrEmpty(timeStamp))
             {
-                throw new Exception("TimeStamp is empty");
+                throw new ArgumentNullException("TimeStamp is not allow to empty");
             }
 
+            // finish create authorization header
             StringBuilder authorizationHeader = new StringBuilder();
             authorizationHeader = new StringBuilder("OAuth ");
             authorizationHeader.AppendFormat("oauth_consumer_key=\"{0}\",", Uri.EscapeDataString(consumerKey));
@@ -132,8 +125,17 @@ namespace KMS.TwitterClient.Helper
 
         private string GetAuthorizeHeader(string method, string url, string status = null)
         {
-            TimeSpan timeSpan = DateTime.UtcNow -
-            new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            if (string.IsNullOrEmpty(method))
+            {
+                throw new ArgumentNullException("Method is not allow to empty");
+            }
+
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException("Url for request is not allow to empty");
+            }
+
+            TimeSpan timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             string oauthTimeStamp = Convert.ToInt64(timeSpan.TotalSeconds).ToString();
             var signature = CreateSignature(url, oauthTimeStamp, method, status);
             var authorizeHeader = CreateAuthorizationHeader(signature, oauthTimeStamp);
@@ -147,33 +149,27 @@ namespace KMS.TwitterClient.Helper
         /// <returns>Return JSON data convert to object model</returns>
         public IList<TwitterModel> GetTweet()
         {
-            try
-            {
-                var authorizeHeader = GetAuthorizeHeader("GET", userTimeline, null);
-                //// Get user timeline
-                WebRequest timeLineRequest = WebRequest.Create(userTimeline);
-                timeLineRequest.Headers.Add("Authorization", authorizeHeader);
-                timeLineRequest.Method = "GET";
-                timeLineRequest.ContentType = "application/x-www-form-urlencoded";
-                WebResponse timeLineResponse = timeLineRequest.GetResponse();
-                var timeLineJson = string.Empty;
-                List<TwitterModel> clientModel;
+            var authorizeHeader = GetAuthorizeHeader("GET", userTimeline);
+            var timeLineJson = string.Empty;
 
-                using (timeLineResponse)
+            WebRequest timelineRequest = WebRequest.Create(userTimeline);
+            timelineRequest.Headers.Add("Authorization", authorizeHeader);
+            timelineRequest.Method = "GET";
+            timelineRequest.ContentType = "application/x-www-form-urlencoded";
+            WebResponse timeLineResponse = timelineRequest.GetResponse();
+
+            List<TwitterModel> twitterModel;
+
+            using (timeLineResponse)
+            {
+                using (var reader = new StreamReader(timeLineResponse.GetResponseStream()))
                 {
-                    using (var reader = new StreamReader(timeLineResponse.GetResponseStream()))
-                    {
-                        timeLineJson = reader.ReadToEnd();
-                        clientModel = JsonConvert.DeserializeObject<List<TwitterModel>>(timeLineJson);
-                    }
+                    timeLineJson = reader.ReadToEnd();
+                    twitterModel = JsonConvert.DeserializeObject<List<TwitterModel>>(timeLineJson);
                 }
+            }
 
-                return clientModel;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return twitterModel;
         }
 
         /// <summary>
@@ -185,29 +181,26 @@ namespace KMS.TwitterClient.Helper
         {
             if (string.IsNullOrEmpty(status))
             {
-                throw new Exception("Content is empty");
+                throw new ArgumentNullException("Content is not allow to empty");
             }
 
-            try
+            var authorizeHeader = GetAuthorizeHeader("POST", newStatusUrl, status);
+
+            var postBody = String.Format("{0}={1}", "status", Uri.EscapeDataString(status));
+
+            HttpWebRequest postStatusRequest = (HttpWebRequest)WebRequest.Create(newStatusUrl);
+            postStatusRequest.Headers.Add("Authorization", authorizeHeader);
+            postStatusRequest.Method = "POST";
+            postStatusRequest.ContentType = "application/x-www-form-urlencoded";
+
+            using (Stream stream = postStatusRequest.GetRequestStream())
             {
-                var authorizeHeader = GetAuthorizeHeader("POST", newStatusUrl, status);
-                var postBody = "status=" + Uri.EscapeDataString(status);
-                HttpWebRequest requestPostStatus = (HttpWebRequest)WebRequest.Create(newStatusUrl);
-                requestPostStatus.Headers.Add("Authorization", authorizeHeader);
-                requestPostStatus.Method = "POST";
-                requestPostStatus.ContentType = "application/x-www-form-urlencoded";
-                using (Stream stream = requestPostStatus.GetRequestStream())
-                {
-                    byte[] content = ASCIIEncoding.ASCII.GetBytes(postBody);
-                    stream.Write(content, 0, content.Length);
-                }
-                WebResponse authResponse = requestPostStatus.GetResponse();
-                return authResponse;
+                byte[] content = ASCIIEncoding.ASCII.GetBytes(postBody);
+                stream.Write(content, 0, content.Length);
             }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            WebResponse requestResponse = postStatusRequest.GetResponse();
+            return requestResponse;
         }
     }
 }
