@@ -27,6 +27,7 @@ namespace KMS.TwitterClient.Controllers
             {
                 Log.Error("Error: " + ex);
                 Log.Error(Environment.NewLine);
+                ViewBag.Error = "There something went wrong with server <br> Please try again later";
                 return View("~/Views/Shared/Error.cshtml");
             }
             return View(userTweet);
@@ -37,6 +38,7 @@ namespace KMS.TwitterClient.Controllers
             if (string.IsNullOrEmpty(status))
             {
                 Log.Error("Status of tweet is empty");
+                ViewBag.Error = "Status of tweet is empty";
                 return View("~/Views/Shared/Error.cshtml");
             }
             else
@@ -50,6 +52,7 @@ namespace KMS.TwitterClient.Controllers
                 {
                     Log.Error("Error: " + ex);
                     Log.Error(Environment.NewLine);
+                    ViewBag.Error = "Error when posting user status.Please try again";
                     return View("~/Views/Shared/Error.cshtml");
                 }
             }

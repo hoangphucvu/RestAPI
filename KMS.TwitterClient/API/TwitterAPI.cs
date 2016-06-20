@@ -11,8 +11,8 @@ using System.Text;
 namespace KMS.TwitterClient.Helper
 {
     /// <summary>
-    /// Provide method to get authorize user, get user timeline,
-    /// post status and refresh to get new tweet
+    /// Provide method to authorize user, get user timeline,
+    /// post status to timeline
     /// </summary>
     public class TwitterAPI
     {
@@ -36,7 +36,7 @@ namespace KMS.TwitterClient.Helper
         /// <param name="url">API url to create signature string</param>
         /// <param name="oauthTimeStamp">oauthTimeStamp to currently time</param>
         /// <returns>Signature string</returns>
-        public string CreateSignature(string url, string oauthTimeStamp, string method, string status = null)
+        public string CreateSignature(string url, string oauthTimeStamp, string method, string status = null )
         {
             if (string.IsNullOrEmpty(url))
             {

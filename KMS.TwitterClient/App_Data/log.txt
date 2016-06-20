@@ -4,3 +4,29 @@ ERROR2016-06-20 07:48:04 – Error: System.Net.WebException: The remote server ret
    at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 47
 ERROR2016-06-20 07:48:04 – 
 
+ERROR2016-06-20 10:11:44 – Status of tweet is empty
+ERROR2016-06-20 10:37:41 – Status of tweet is empty
+ERROR2016-06-20 10:44:08 – Error: System.Net.WebException: The remote server returned an error: (403) Forbidden.
+   at System.Net.HttpWebRequest.GetResponse()
+   at KMS.TwitterClient.Helper.TwitterAPI.UpdateUserTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\API\TwitterAPI.cs:line 202
+   at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 49
+ERROR2016-06-20 10:44:08 – 
+
+ERROR2016-06-20 10:48:09 – Error: System.Net.WebException: The remote server returned an error: (403) Forbidden.
+   at System.Net.HttpWebRequest.GetResponse()
+   at KMS.TwitterClient.Helper.TwitterAPI.UpdateUserTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\API\TwitterAPI.cs:line 202
+   at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 49
+ERROR2016-06-20 10:48:09 – 
+
+ERROR2016-06-20 10:52:13 – Error: System.Net.WebException: The remote server returned an error: (403) Forbidden.
+   at System.Net.HttpWebRequest.GetResponse()
+   at KMS.TwitterClient.Helper.TwitterAPI.UpdateUserTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\API\TwitterAPI.cs:line 202
+   at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 49
+ERROR2016-06-20 10:52:13 – 
+
+ERROR2016-06-20 11:18:34 – Error: System.Net.WebException: The remote server returned an error: (401) Unauthorized.
+   at System.Net.HttpWebRequest.GetResponse()
+   at KMS.TwitterClient.Helper.TwitterAPI.UpdateUserTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\API\TwitterAPI.cs:line 202
+   at KMS.TwitterClient.Controllers.HomeController.PostNewTweet(String status) in D:\Source Code\TwitterAPI\KMS.TwitterClient\Controllers\HomeController.cs:line 49
+ERROR2016-06-20 11:18:34 – 
+
