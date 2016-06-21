@@ -8,7 +8,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace KMS.TwitterClient.Helper
+namespace KMS.TwitterClient.API
 {
     /// <summary>
     /// Provide method to authorize user, get user timeline,
@@ -36,7 +36,7 @@ namespace KMS.TwitterClient.Helper
         /// <param name="url">API url to create signature string</param>
         /// <param name="oauthTimeStamp">oauthTimeStamp to currently time</param>
         /// <returns>Signature string</returns>
-        public string CreateSignature(string url, string oauthTimeStamp, string method, string status = null )
+        public string CreateSignature(string url, string oauthTimeStamp, string method, string status = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -74,7 +74,8 @@ namespace KMS.TwitterClient.Helper
 
             foreach (var keyValuePair in dictionary)
             {
-                headerAuthorizeString.Append(Uri.EscapeDataString(string.Format("{0}={1}&", keyValuePair.Key, keyValuePair.Value)));
+                headerAuthorizeString.Append(Uri.EscapeDataString(
+                    string.Format("{0}={1}&", keyValuePair.Key, keyValuePair.Value)));
             }
 
             //remove & char
@@ -93,7 +94,7 @@ namespace KMS.TwitterClient.Helper
         }
 
         /// <summary>
-        /// Create authorize header cotent all require params
+        /// Create authorize header contains all require params that twitter need
         /// </summary>
         /// <param name="signature">Signature String </param>
         /// <param name="timeStamp">The current time</param>
@@ -120,9 +121,17 @@ namespace KMS.TwitterClient.Helper
             authorizationHeader.AppendFormat("oauth_timestamp=\"{0}\",", Uri.EscapeDataString(timeStamp));
             authorizationHeader.AppendFormat("oauth_token=\"{0}\",", Uri.EscapeDataString(accessToken));
             authorizationHeader.AppendFormat("oauth_version=\"{0}\"", Uri.EscapeDataString(oauthVersion));
+
             return authorizationHeader.ToString();
         }
 
+        /// <summary>
+        /// Get authorize string 
+        /// </summary>
+        /// <param name="method">type of request</param>
+        /// <param name="url">url to make a request</param>
+        /// <param name="status">the status user post optional params</param>
+        /// <returns>Encrypted authorize string</returns>
         private string GetAuthorizeHeader(string method, string url, string status = null)
         {
             if (string.IsNullOrEmpty(method))
@@ -139,6 +148,7 @@ namespace KMS.TwitterClient.Helper
             string oauthTimeStamp = Convert.ToInt64(timeSpan.TotalSeconds).ToString();
             var signature = CreateSignature(url, oauthTimeStamp, method, status);
             var authorizeHeader = CreateAuthorizationHeader(signature, oauthTimeStamp);
+
             return authorizeHeader;
         }
 
@@ -181,7 +191,7 @@ namespace KMS.TwitterClient.Helper
         {
             if (string.IsNullOrEmpty(status))
             {
-                throw new ArgumentNullException("Content is not allow to empty");
+                throw new ArgumentNullException("Status is not allow to empty");
             }
 
             var authorizeHeader = GetAuthorizeHeader("POST", newStatusUrl, status);
@@ -200,6 +210,7 @@ namespace KMS.TwitterClient.Helper
             }
 
             WebResponse requestResponse = postStatusRequest.GetResponse();
+
             return requestResponse;
         }
     }

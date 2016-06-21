@@ -18,7 +18,7 @@
                     @foreach (var tweet in Model)
                     {
                         <div class="alert alert-info" role="alert">
-                            <strong>@tweet.User.Name Post at @tweet.CreatedAt  </strong><br />
+                            <div><strong>@tweet.User.Name Post at @tweet.Time.ToString() </strong></div> <br />
                             @tweet.Status
                         </div>
                     }
@@ -35,16 +35,12 @@
                 <div>
                     @using (Html.BeginForm("PostNewTweet", "Home"))
                     {
-                        <textarea class="form-control" style="margin-bottom: 2%" name="status" id="status"></textarea>
-                        <button class="btn btn-primary" id="postTweet">POST</button>
+                        <textarea class="form-control" style="margin-bottom: 2%" name="status" id="status" maxlength="140"></textarea>
+                        <span id="feedback"></span><br />
+                        <button class="btn btn-primary btn-block" id="postTweet">POST</button>
                     }
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $("#refresh").click(function () {
-        location.reload();
-    });
-</script>

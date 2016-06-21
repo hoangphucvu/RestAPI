@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Web.Mvc;
+using System;
+using System.Globalization;
 
 namespace KMS.TwitterClient.Models
 {
@@ -15,5 +16,13 @@ namespace KMS.TwitterClient.Models
         public string Status { get; set; }
 
         public UserModel User { get; set; }
+
+        public DateTime Time
+        {
+            get
+            {
+                return DateTime.ParseExact(CreatedAt, "ddd MMM dd HH:mm:ss +ffff yyyy", CultureInfo.InvariantCulture);
+            }
+        }
     }
 }

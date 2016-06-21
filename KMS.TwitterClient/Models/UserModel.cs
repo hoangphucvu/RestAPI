@@ -1,4 +1,6 @@
-﻿namespace KMS.TwitterClient.Models
+﻿using Newtonsoft.Json;
+
+namespace KMS.TwitterClient.Models
 {
     /// <summary>
     /// Store User information
