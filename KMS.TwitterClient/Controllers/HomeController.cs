@@ -32,7 +32,6 @@ namespace KMS.TwitterClient.Controllers
         public ActionResult Error()
         {
             string errorInfo = HttpContext.Application["ErrorInfo"].ToString();
-            ViewBag.ErrorInfo = errorInfo;
             return View("~/Views/Home/Error.cshtml");
         }
     }
