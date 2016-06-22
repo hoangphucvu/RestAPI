@@ -16,19 +16,19 @@ namespace KMS.TwitterClient.API
     /// </summary>
     public class TwitterAPI
     {
-        private readonly string consumerKey = ConfigurationManager.AppSettings["ConsumerKey"].ToString();
-        private readonly string consumerSecret = ConfigurationManager.AppSettings["ConsumerSecret"].ToString();
-        private readonly string accessToken = ConfigurationManager.AppSettings["AccessToken"].ToString();
-        private readonly string accessTokenSecret = ConfigurationManager.AppSettings["AccessTokenSecret"].ToString();
-        private readonly string oauthSignatureMethod = ConfigurationManager.AppSettings["OauthSignatureMethod"].ToString();
-        private readonly string oauthVersion = ConfigurationManager.AppSettings["OauthVersion"].ToString();
-        private readonly string userTimeline = ConfigurationManager.AppSettings["Twitter.UserTimeline"].ToString();
-        private readonly string newStatusUrl = ConfigurationManager.AppSettings["Twitter.UpdateTweet"].ToString();
+        private string consumerKey = ConfigurationManager.AppSettings["ConsumerKey"].ToString();
+        private string consumerSecret = ConfigurationManager.AppSettings["ConsumerSecret"].ToString();
+        private string accessToken = ConfigurationManager.AppSettings["AccessToken"].ToString();
+        private string accessTokenSecret = ConfigurationManager.AppSettings["AccessTokenSecret"].ToString();
+        private string oauthSignatureMethod = ConfigurationManager.AppSettings["OauthSignatureMethod"].ToString();
+        private string oauthVersion = ConfigurationManager.AppSettings["OauthVersion"].ToString();
+        private string userTimeline = ConfigurationManager.AppSettings["Twitter.UserTimeline"].ToString();
+        private string newStatusUrl = ConfigurationManager.AppSettings["Twitter.UpdateTweet"].ToString();
 
         /// <summary>
         /// This variable is use to make sure request is unique
         /// </summary>
-        private readonly string oauthNonce = Convert.ToBase64String(new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
+        private string oauthNonce = Convert.ToBase64String(new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
 
         /// <summary>
         /// Create a encrypted string for authorization with server
