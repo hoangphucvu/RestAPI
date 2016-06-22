@@ -5,19 +5,23 @@ namespace KMS.TwitterClient.Controllers
 {
     public class HomeController : Controller
     {
-        private object userTweet;
 
         /// <summary>
         /// Get user tweet when running
         /// </summary>
-        /// <returns>User and twitter Model</returns>
+        /// <returns>User timeline</returns>
         public ActionResult Index()
         {
             TwitterAPI helper = new TwitterAPI();
-            userTweet = helper.GetTweet();
+            var userTweet = helper.GetTweet();
             return View(userTweet);
         }
 
+        /// <summary>
+        /// Post status to user timeline
+        /// </summary>
+        /// <param name="status">Status user want to post</param>
+        /// <returns>Index action</returns>
         [HttpPost]
         public ActionResult PostNewTweet(string status)
         {
@@ -31,7 +35,6 @@ namespace KMS.TwitterClient.Controllers
         /// </summary>
         public ActionResult Error()
         {
-            string errorInfo = HttpContext.Application["ErrorInfo"].ToString();
             return View("~/Views/Home/Error.cshtml");
         }
     }
