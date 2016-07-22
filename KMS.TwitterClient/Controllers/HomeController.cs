@@ -6,11 +6,11 @@ namespace KMS.TwitterClient.Controllers
 {
     public class HomeController : Controller
     {
-        private ITwitterServices _twitterServices;
+        private ITwitterServices twitterServices;
 
         public HomeController(ITwitterServices twitterServices)
         {
-            _twitterServices = twitterServices;
+            this.twitterServices = twitterServices;
         }
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace KMS.TwitterClient.Controllers
         /// <returns>User timeline</returns>
         public ActionResult Index()
         {
-            var userTweet = _twitterServices.GetTweet();
+            var userTweet = twitterServices.GetTweet();
             return View(userTweet);
         }
 
@@ -31,7 +31,7 @@ namespace KMS.TwitterClient.Controllers
         [HttpPost]
         public ActionResult PostNewTweet(string status)
         {
-            _twitterServices.UpdateUserTweet(status);
+            twitterServices.UpdateUserTweet(status);
             return RedirectToAction("Index");
         }
     }
