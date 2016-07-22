@@ -1,10 +1,17 @@
 ﻿using KMS.TwitterClient.API;
+using Microsoft.Practices.Unity;
 using System.Web.Mvc;
 
 namespace KMS.TwitterClient.Controllers
 {
     public class HomeController : Controller
     {
+        private ITwitterServices _twitterServices;
+
+        public HomeController(ITwitterServices twitterServices)
+        {
+            _twitterServices = twitterServices;
+        }
 
         /// <summary>
         /// Get user tweet when running
@@ -12,8 +19,7 @@ namespace KMS.TwitterClient.Controllers
         /// <returns>User timeline</returns>
         public ActionResult Index()
         {
-            TwitterAPI helper = new TwitterAPI();
-            var userTweet = helper.GetTweet();
+            var userTweet = _twitterServices.GetTweet();
             return View(userTweet);
         }
 
@@ -25,17 +31,8 @@ namespace KMS.TwitterClient.Controllers
         [HttpPost]
         public ActionResult PostNewTweet(string status)
         {
-            TwitterAPI helper = new TwitterAPI();
-            helper.UpdateUserTweet(status);
+            _twitterServices.UpdateUserTweet(status);
             return RedirectToAction("Index");
-        }
-
-        /// <summary>
-        /// return error view associate with global exception
-        /// </summary>
-        public ActionResult Error()
-        {
-            return View("~/Views/Home/Error.cshtml");
         }
     }
 }

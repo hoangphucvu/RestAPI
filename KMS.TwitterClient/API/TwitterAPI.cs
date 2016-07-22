@@ -14,7 +14,7 @@ namespace KMS.TwitterClient.API
     /// Provide method to authorize user, get user timeline,
     /// post status to timeline
     /// </summary>
-    public class TwitterAPI
+    public class TwitterAPI : ITwitterServices
     {
         private string consumerKey = ConfigurationManager.AppSettings["ConsumerKey"].ToString();
         private string consumerSecret = ConfigurationManager.AppSettings["ConsumerSecret"].ToString();
@@ -126,7 +126,7 @@ namespace KMS.TwitterClient.API
         }
 
         /// <summary>
-        /// Get authorize string 
+        /// Get authorize string
         /// </summary>
         /// <param name="method">type of request</param>
         /// <param name="url">url to make a request</param>

@@ -9,9 +9,15 @@ namespace KMS.TwitterClient.Models
     /// </summary>
     public class TwitterModel
     {
+        /// <summary>
+        /// Time that tweet is post
+        /// </summary>
         [JsonProperty(PropertyName = "created_at")]
         public string CreatedAt { get; set; }
 
+        /// <summary>
+        /// Status user post
+        /// </summary>
         [JsonProperty(PropertyName = "text")]
         public string Status { get; set; }
 
